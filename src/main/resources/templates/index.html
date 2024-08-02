@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<button onclick="type1()">普通调用</button>
+<ul id="type1Ul"></ul>
+
+<button onclick="type2()">普通调用+SseEmitter通信显示进度</button>
+<ul id="type2Ul"></ul>
+
+<button onclick="type3()">异步调用</button>
+<ul id="type3Ul"></ul>
+
+<button onclick="type4()">异步调用+SseEmitter通信显示进度</button>
+<ul id="type4Ul"></ul>
+
+<button onclick="type5()">多线程(new Thread)+SseEmitter通信显示进度</button>
+<ul id="type5Ul"></ul>
+
+<button onclick="type6()">多线程(线程池)+SseEmitter通信显示进度</button>
+<ul id="type6Ul"></ul>
+
+<!--<button onclick="type2()">进度显示调用（SseEmitter）</button>-->
+<!--<ul id="type2Ul"></ul>-->
+
+<!--<button onclick="type3()">进度显示调用（SseEmitter）+ 多线程</button>-->
+<!--<ul id="type3Ul"></ul>-->
+
+<script src="jquery/jquery-3.7.1.min.js"></script>
+<script type="text/javascript">
+    function type1() {
+        let startTime = Date.now();
+        $("#type1Ul").append($("<li>").text("调用接口"));
+        $.get("/s1", function(data) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type1Ul").append($("<li>").text(data));
+            $("#type1Ul").append($("<li>").text("用时："+elapsedTime+" ms"));
+        });
+    }
+
+    function type2() {
+        let startTime = Date.now();
+        $("#type2Ul").append($("<li>").text("调用接口"));
+        var source = new EventSource('/s2');
+        source.onmessage = function(event) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type2Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+        };
+        source.onerror = function(error) {
+            console.error('发生错误: ', error);
+            console.error('状态: ', source.readyState);
+            source.close(); // 在发生错误时关闭连接，防止重复请求
+        };
+    }
+
+    function type3() {
+        let startTime = Date.now();
+        $("#type3Ul").append($("<li>").text("调用接口"));
+        $.get("/s3", function(data) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type3Ul").append($("<li>").text(data));
+            $("#type3Ul").append($("<li>").text("用时："+elapsedTime+" ms"));
+        });
+    }
+    function type4() {
+        let startTime = Date.now();
+        $("#type4Ul").append($("<li>").text("调用接口"));
+        var source = new EventSource('/s4');
+        source.onmessage = function(event) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type4Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+        };
+        source.onerror = function(error) {
+            console.error('发生错误: ', error);
+            console.error('状态: ', source.readyState);
+            source.close(); // 在发生错误时关闭连接，防止重复请求
+        };
+    }
+    function type5() {
+        let startTime = Date.now();
+        $("#type5Ul").append($("<li>").text("调用接口"));
+        var source = new EventSource('/s5');
+        source.onmessage = function(event) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type5Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+        };
+        source.onerror = function(error) {
+            console.error('发生错误: ', error);
+            console.error('状态: ', source.readyState);
+            source.close(); // 在发生错误时关闭连接，防止重复请求
+        };
+    }
+    function type6() {
+        let startTime = Date.now();
+        $("#type6Ul").append($("<li>").text("调用接口"));
+        var source = new EventSource('/s6');
+        source.onmessage = function(event) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type6Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+        };
+        source.onerror = function(error) {
+            console.error('发生错误: ', error);
+            console.error('状态: ', source.readyState);
+            source.close(); // 在发生错误时关闭连接，防止重复请求
+        };
+    }
+
+</script>
+</body>
+</html>
