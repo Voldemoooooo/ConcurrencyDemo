@@ -1,19 +1,14 @@
 package com.ljl.xue.controller;
 
 import com.ljl.xue.service.AsyncService;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
 
 /**
  * @author ljl
@@ -29,7 +24,7 @@ public class XAllController {
     //同步执行
     @GetMapping("/s1")
     private String s1() throws InterruptedException {
-        System.out.println("s1被调用");
+        System.out.println("s1被调用→→→→→→→→→→→→→→→→→→");
         asyncService.work1();
         asyncService.work2();
         asyncService.work3();
@@ -40,7 +35,7 @@ public class XAllController {
     //同步执行 + SseEmitter通信
     @GetMapping(value = "/s2", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter s2() {
-        System.out.println("s2被调用");
+        System.out.println("s2被调用→→→→→→→→→→→→→→→→→→");
         SseEmitter emitter = new SseEmitter();
         //开一个线程异步执行内容，不影响连接的建立，否则同步执行一次返回结果 失去了阶段返回的意义
         new Thread(() -> {
@@ -71,7 +66,7 @@ public class XAllController {
     //异步执行
     @GetMapping("/s3")
     private String s3() throws InterruptedException {
-        System.out.println("s3被调用");
+        System.out.println("s3被调用→→→→→→→→→→→→→→→→→→");
         asyncService.work1Async();
         asyncService.work2Async();
         asyncService.work3Async();
@@ -82,7 +77,7 @@ public class XAllController {
     //异步执行 + SseEmitter通信
     @GetMapping(value = "/s4", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter s4() throws InterruptedException, IOException {
-        System.out.println("s4被调用");
+        System.out.println("s4被调用→→→→→→→→→→→→→→→→→→");
         SseEmitter emitter = new SseEmitter();
 
         // 定义 CompletableFuture 列表
@@ -119,8 +114,13 @@ public class XAllController {
                     if (t != null) {
                         emitter.completeWithError(t);
                     } else {
-                        emitter.complete(); // 完成
-                        System.out.println("所有任务完成，连接关闭");
+                        try {
+                            emitter.send("总用时");
+                            emitter.complete(); // 完成
+                            System.out.println("所有任务完成，连接关闭");
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 });
         emitter.send("请求完成回调");
@@ -133,9 +133,11 @@ public class XAllController {
     * 其他并发都可以判断全部执行完后的回调，new Thread不支持，适合无关紧要的小分支操作
     * */
     @GetMapping(value = "/s5", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter s5() throws IOException {
-        System.out.println("s5被调用");
+    public SseEmitter s5() throws IOException, InterruptedException {
+        System.out.println("s5被调用→→→→→→→→→→→→→→→→→→");
         SseEmitter emitter = new SseEmitter();
+        // 初始化计数器为3
+        CountDownLatch latch = new CountDownLatch(3);
         new Thread(() -> {
             try {
 
@@ -144,6 +146,9 @@ public class XAllController {
                         emitter.send(asyncService.work1());
                     } catch (Exception e) {
                         emitter.completeWithError(e);
+                    } finally {
+                        // 线程完成，计数器减1
+                        latch.countDown();
                     }
                 }).start();
                 new Thread(() -> {
@@ -151,6 +156,9 @@ public class XAllController {
                         emitter.send(asyncService.work2());
                     } catch (Exception e) {
                         emitter.completeWithError(e);
+                    } finally {
+                        // 线程完成，计数器减1
+                        latch.countDown();
                     }
                 }).start();
                 new Thread(() -> {
@@ -158,10 +166,22 @@ public class XAllController {
                         emitter.send(asyncService.work3());
                     } catch (Exception e) {
                         emitter.completeWithError(e);
+                    } finally {
+                        // 线程完成，计数器减1
+                        latch.countDown();
                     }
                 }).start();
             } catch (Exception e) {
                 emitter.completeWithError(e);
+            }
+            try {
+                // 等待所有线程完成
+                latch.await();
+                emitter.send("总用时");
+                emitter.complete();
+                System.out.println("所有任务完成，连接关闭");
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
             }
         }).start();
         emitter.send("请求完成回调");
@@ -170,7 +190,7 @@ public class XAllController {
     // 使用线程池 + SseEmitter通信
     @GetMapping(value = "/s6", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter s6() throws IOException {
-        System.out.println("s6被调用");
+        System.out.println("s6被调用→→→→→→→→→→→→→→→→→→");
         SseEmitter emitter = new SseEmitter();
 
         // 提交任务到线程池
