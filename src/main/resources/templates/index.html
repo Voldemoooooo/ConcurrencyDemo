@@ -2,52 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Title</title>
+    <!-- Bootstrap CSS -->
+    <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<button onclick="type1()">普通调用</button>
-<ul id="type1Ul"></ul>
 
-<button onclick="type2()">普通调用+SseEmitter通信显示进度</button>
-<ul id="type2Ul"></ul>
+<div class="container mt-4">
+    <h1 class="mb-4">操作演示</h1>
 
-<button onclick="type3()">异步调用</button>
-<ul id="type3Ul"></ul>
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type1()">普通调用</button>
+        <ul id="type1Ul" class="list-group"></ul>
+    </div>
 
-<button onclick="type4()">异步调用+SseEmitter通信显示进度</button>
-<ul id="type4Ul"></ul>
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type2()">普通调用+SseEmitter通信显示进度</button>
+        <ul id="type2Ul" class="list-group"></ul>
+    </div>
 
-<button onclick="type5()">多线程(new Thread)+SseEmitter通信显示进度</button>
-<ul id="type5Ul"></ul>
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type3()">异步调用</button>
+        <ul id="type3Ul" class="list-group"></ul>
+    </div>
 
-<button onclick="type6()">多线程(线程池)+SseEmitter通信显示进度</button>
-<ul id="type6Ul"></ul>
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type4()">异步调用+SseEmitter通信显示进度</button>
+        <ul id="type4Ul" class="list-group"></ul>
+    </div>
 
-<!--<button onclick="type2()">进度显示调用（SseEmitter）</button>-->
-<!--<ul id="type2Ul"></ul>-->
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type5()">多线程(new Thread)+SseEmitter通信显示进度</button>
+        <ul id="type5Ul" class="list-group"></ul>
+    </div>
 
-<!--<button onclick="type3()">进度显示调用（SseEmitter）+ 多线程</button>-->
-<!--<ul id="type3Ul"></ul>-->
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type6()">多线程(线程池)+SseEmitter通信显示进度</button>
+        <ul id="type6Ul" class="list-group"></ul>
+    </div>
 
-<script src="jquery/jquery-3.7.1.min.js"></script>
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type7()">无锁多线程+5000</button>
+        <ul id="type7Ul" class="list-group"></ul>
+    </div>
+
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type8()">有锁多线程+5000</button>
+        <ul id="type8Ul" class="list-group"></ul>
+    </div>
+
+    <div class="list-group mb-4">
+        <button class="list-group-item list-group-item-action" onclick="type9()">有锁单线程+5000</button>
+        <ul id="type9Ul" class="list-group"></ul>
+    </div>
+</div>
+
+<!-- jQuery and Bootstrap JS -->
+<script src="./jquery/jquery-3.7.1.min.js"></script>
+<script src="./bootstrap/js/bootstrap.min.js"></script>
+
+<!-- Your script -->
 <script type="text/javascript">
     function type1() {
         let startTime = Date.now();
-        $("#type1Ul").append($("<li>").text("调用接口"));
+        $("#type1Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
         $.get("/s1", function(data) {
             const elapsedTime = Date.now() - startTime;
-            $("#type1Ul").append($("<li>").text(data));
-            $("#type1Ul").append($("<li>").text("用时："+elapsedTime+" ms"));
+            $("#type1Ul").append($("<li>").text(data).addClass("list-group-item"));
+            $("#type1Ul").append($("<li>").text("用时："+elapsedTime+" ms").addClass("list-group-item"));
         });
     }
 
     function type2() {
         let startTime = Date.now();
-        $("#type2Ul").append($("<li>").text("调用接口"));
+        $("#type2Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
         var source = new EventSource('/s2');
         source.onmessage = function(event) {
             const elapsedTime = Date.now() - startTime;
-            $("#type2Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+            $("#type2Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms").addClass("list-group-item"));
         };
         source.onerror = function(error) {
             console.error('发生错误: ', error);
@@ -58,20 +91,20 @@
 
     function type3() {
         let startTime = Date.now();
-        $("#type3Ul").append($("<li>").text("调用接口"));
+        $("#type3Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
         $.get("/s3", function(data) {
             const elapsedTime = Date.now() - startTime;
-            $("#type3Ul").append($("<li>").text(data));
-            $("#type3Ul").append($("<li>").text("用时："+elapsedTime+" ms"));
+            $("#type3Ul").append($("<li>").text(data).addClass("list-group-item"));
+            $("#type3Ul").append($("<li>").text("用时："+elapsedTime+" ms").addClass("list-group-item"));
         });
     }
     function type4() {
         let startTime = Date.now();
-        $("#type4Ul").append($("<li>").text("调用接口"));
+        $("#type4Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
         var source = new EventSource('/s4');
         source.onmessage = function(event) {
             const elapsedTime = Date.now() - startTime;
-            $("#type4Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+            $("#type4Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms").addClass("list-group-item"));
         };
         source.onerror = function(error) {
             console.error('发生错误: ', error);
@@ -81,11 +114,11 @@
     }
     function type5() {
         let startTime = Date.now();
-        $("#type5Ul").append($("<li>").text("调用接口"));
+        $("#type5Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
         var source = new EventSource('/s5');
         source.onmessage = function(event) {
             const elapsedTime = Date.now() - startTime;
-            $("#type5Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+            $("#type5Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms").addClass("list-group-item"));
         };
         source.onerror = function(error) {
             console.error('发生错误: ', error);
@@ -95,11 +128,11 @@
     }
     function type6() {
         let startTime = Date.now();
-        $("#type6Ul").append($("<li>").text("调用接口"));
+        $("#type6Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
         var source = new EventSource('/s6');
         source.onmessage = function(event) {
             const elapsedTime = Date.now() - startTime;
-            $("#type6Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms"));
+            $("#type6Ul").append($("<li>").text(event.data+" 用时："+elapsedTime+" ms").addClass("list-group-item"));
         };
         source.onerror = function(error) {
             console.error('发生错误: ', error);
@@ -108,6 +141,34 @@
         };
     }
 
+    function type7() {
+        let startTime = Date.now();
+        $("#type7Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
+        $.get("/incrementUnsafe", function(data) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type7Ul").append($("<li>").text(data).addClass("list-group-item"));
+            $("#type7Ul").append($("<li>").text("用时："+elapsedTime+" ms").addClass("list-group-item"));
+        });
+    }
+    function type8() {
+        let startTime = Date.now();
+        $("#type8Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
+        $.get("/incrementSafe", function(data) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type8Ul").append($("<li>").text(data).addClass("list-group-item"));
+            $("#type8Ul").append($("<li>").text("用时："+elapsedTime+" ms").addClass("list-group-item"));
+        });
+    }
+    function type9() {
+        let startTime = Date.now();
+        $("#type9Ul").append($("<li>").text("调用接口").addClass("list-group-item"));
+        $.get("/incrementSafe2", function(data) {
+            const elapsedTime = Date.now() - startTime;
+            $("#type9Ul").append($("<li>").text(data).addClass("list-group-item"));
+            $("#type9Ul").append($("<li>").text("用时："+elapsedTime+" ms").addClass("list-group-item"));
+        });
+    }
 </script>
+
 </body>
 </html>

@@ -294,8 +294,8 @@ public class XAllController {
         }
 
         int finalValue = inMemoryCounter.getValue();
-        System.out.println("Final count (unsafe): " + finalValue);
-        return "Final count (unsafe): " + finalValue;
+        System.out.println("成功插入: " + finalValue+" 条");
+        return "成功插入: " + finalValue+" 条";
     }
 
     // 线程安全 synchronized修饰
@@ -336,8 +336,22 @@ public class XAllController {
         }
 
         int finalValue = inMemoryCounter.getValue();
-        System.out.println("Final count (unsafe): " + finalValue);
-        return "Final count (unsafe): " + finalValue;
+        System.out.println("成功插入: " + finalValue+" 条");
+        return "成功插入: " + finalValue+" 条";
+    }
+
+    // 线程安全 synchronized修饰  不适用线程 用作速度对比
+    @GetMapping("/incrementSafe2")
+    public String incrementSafe2() throws InterruptedException {
+        inMemoryCounter.clear();
+            for (int i = 0; i < 5000; i++) {
+                // 模拟操作延迟
+                Thread.sleep(1);
+                inMemoryCounter.incrementSafe();
+            }
+        int finalValue = inMemoryCounter.getValue();
+        System.out.println("成功插入: " + finalValue+" 条");
+        return "成功插入: " + finalValue+" 条";
     }
 
 }
