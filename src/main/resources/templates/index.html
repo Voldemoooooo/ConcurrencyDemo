@@ -6,11 +6,19 @@
     <title>Title</title>
     <!-- Bootstrap CSS -->
     <link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        h4 {
+            cursor: pointer; /* 显示指针以指示 h4 标签是可点击的 */
+            color: blue; /* 可选：使 h4 标签的文字变为蓝色 */
+        }
+    </style>
 </head>
 <body>
 
 <div class="container mt-4">
-    <h1 class="mb-4">操作演示</h1>
+    <h1 class="mb-4">初识Java线程、锁</h1>
+
+    <h4 class="mb-4" onclick="window.open('https://github.com/Voldemoooooo/ConcurrencyDemo.git','_blank')">github地址：https://github.com/Voldemoooooo/ConcurrencyDemo.git</h4>
 
     <div class="list-group mb-4">
         <button class="list-group-item list-group-item-action" onclick="type1()">普通调用</button>
@@ -43,17 +51,17 @@
     </div>
 
     <div class="list-group mb-4">
-        <button class="list-group-item list-group-item-action" onclick="type7()">无锁多线程+5000</button>
+        <button class="list-group-item list-group-item-action" onclick="type7()">无锁多线程+5000（线程不安全，可能造成数据丢失、竞争、导致结果不一致）</button>
         <ul id="type7Ul" class="list-group"></ul>
     </div>
 
     <div class="list-group mb-4">
-        <button class="list-group-item list-group-item-action" onclick="type8()">有锁多线程+5000</button>
+        <button class="list-group-item list-group-item-action" onclick="type8()">有锁多线程+5000（线程安全，数据一致+多线程提高速度）</button>
         <ul id="type8Ul" class="list-group"></ul>
     </div>
 
     <div class="list-group mb-4">
-        <button class="list-group-item list-group-item-action" onclick="type9()">有锁单线程+5000</button>
+        <button class="list-group-item list-group-item-action" onclick="type9()">有锁单线程+5000（线程安全，数据一致+单线程速度慢）</button>
         <ul id="type9Ul" class="list-group"></ul>
     </div>
 </div>
