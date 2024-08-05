@@ -1,6 +1,7 @@
 package com.ljl.xue.controller;
 
 import com.ljl.xue.service.AsyncService;
+import com.ljl.xue.service.InMemoryCounter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +19,14 @@ public class XAllController {
 
     @Autowired
     private AsyncService asyncService;
+    @Autowired
+    private InMemoryCounter inMemoryCounter;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
-
+/*
+ *
+ * Java的同步、异步、多线程
+ * */
     //同步执行
     @GetMapping("/s1")
     private String s1() throws InterruptedException {
@@ -140,7 +146,16 @@ public class XAllController {
         CountDownLatch latch = new CountDownLatch(3);
         new Thread(() -> {
             try {
-
+                Runnable task = () -> {
+                    try {
+                        emitter.send(asyncService.work1());
+                    } catch (Exception e) {
+                        emitter.completeWithError(e);
+                    } finally {
+                        // 线程完成，计数器减1
+                        latch.countDown();
+                    }
+                };
                 new Thread(() -> {
                     try {
                         emitter.send(asyncService.work1());
@@ -233,6 +248,96 @@ public class XAllController {
         });
         emitter.send("请求完成回调");
         return emitter;
+    }
+
+
+/*
+*
+* 初识Java锁机制
+* */
+
+    // 线程不安全
+    @GetMapping("/incrementUnsafe")
+    public String incrementUnsafe() {
+        inMemoryCounter.clear();
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                inMemoryCounter.incrementUnsafe();
+                try {
+                    Thread.sleep(1); // 模拟操作延迟
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+        Thread t3 = new Thread(task);
+        Thread t4 = new Thread(task);
+        Thread t5 = new Thread(task);
+
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+            t4.join();
+            t5.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        int finalValue = inMemoryCounter.getValue();
+        System.out.println("Final count (unsafe): " + finalValue);
+        return "Final count (unsafe): " + finalValue;
+    }
+
+    // 线程安全 synchronized修饰
+    @GetMapping("/incrementSafe")
+    public String incrementSafe() {
+        inMemoryCounter.clear();
+        Runnable task = () -> {
+            for (int i = 0; i < 1000; i++) {
+                inMemoryCounter.incrementSafe();
+                try {
+                    Thread.sleep(1); // 模拟操作延迟
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread t1 = new Thread(task);
+        Thread t2 = new Thread(task);
+        Thread t3 = new Thread(task);
+        Thread t4 = new Thread(task);
+        Thread t5 = new Thread(task);
+
+        t1.start();
+        t2.start();
+        t3.start();
+        t4.start();
+        t5.start();
+
+        try {
+            t1.join();
+            t2.join();
+            t3.join();
+            t4.join();
+            t5.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        int finalValue = inMemoryCounter.getValue();
+        System.out.println("Final count (unsafe): " + finalValue);
+        return "Final count (unsafe): " + finalValue;
     }
 
 }
