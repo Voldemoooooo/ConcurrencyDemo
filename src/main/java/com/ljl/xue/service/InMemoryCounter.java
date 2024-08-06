@@ -42,7 +42,7 @@ public class InMemoryCounter {
         return counterMap.get(1).get();
     }
 
-    public void clear() {
+    public synchronized void clear() {
         counterMap.clear();
         counterMap.put(1, new AtomicInteger(0));
     }
